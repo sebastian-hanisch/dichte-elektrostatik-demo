@@ -131,9 +131,12 @@ ABL = {"m0.0": (9.6, 0.13), "m0.25": (6.0, 0.17), "m0.5": (4.0, 0.20), "m1.0": (
 
 def test_ablation_randzone_and_charge_width(ablation):
     assert len(ablation) == 120 and pc(float(__import__("numpy").median([r["gap9"] for r in ablation]))) == pytest.approx(8.8, abs=0.06)
+    off = []
     for k, (gap, ov) in ABL.items():
         sm = ev.ablation_summary(ablation, k)
-        assert pc(sm["gap"]) == pytest.approx(gap, abs=0.06) and sm["ov"] == pytest.approx(ov, abs=0.02), k
+        if not (pc(sm["gap"]) == pytest.approx(gap, abs=0.06) and sm["ov"] == pytest.approx(ov, abs=0.02)):
+            off.append((k, round(pc(sm["gap"]), 3), round(sm["ov"], 3), "erwartet", gap, ov))
+    assert not off, off
 
 
 FAMILY_12 = {  # Familie -> (Stück 10, elektrostatisch), n = 12, je 15 Instanzen (nur Mediane; rechnerabhängig)
@@ -142,9 +145,13 @@ FAMILY_12 = {  # Familie -> (Stück 10, elektrostatisch), n = 12, je 15 Instanze
 
 
 def test_the_families_at_n12_where_the_loop_of_piece_10_is_better_and_where_not(sweeps):
+    off = []
     for f, (s10, el) in FAMILY_12.items():
         rs = [r for r in sweeps[12] if r["family"] == f]
         assert len(rs) == 15
-        assert pc(ev.gap_summary(rs, None, "s10")["gap"]) == pytest.approx(s10, abs=TOL[12]) and pc(ev.gap_summary(rs, None, "electro")["gap"]) == pytest.approx(el, abs=TOL[12]), f
+        got = (pc(ev.gap_summary(rs, None, "s10")["gap"]), pc(ev.gap_summary(rs, None, "electro")["gap"]))
+        if not (got[0] == pytest.approx(s10, abs=TOL[12]) and got[1] == pytest.approx(el, abs=TOL[12])):
+            off.append((f, tuple(round(g, 3) for g in got), "erwartet", s10, el))
+    assert not off, off
     better_loop = [f for f, (s10, el) in FAMILY_12.items() if s10 < el]
     assert better_loop == ["netlist", "uniform", "cluster"]
