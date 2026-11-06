@@ -1,7 +1,7 @@
 """Strafverfahren: glatte lineare Länge plus Dichtestrafe, λ wächst von Stufe zu Stufe, nach jeder Stufe wird gerundet (eigene Fassung, „ePlace-artig“).
 
 Kern von Stück 9 und 10 (`dla_place.py`: Instanz, Pads, Kosten, Platzierung, Rundung). Neu: die Orte X (n × 2) als Variable, f(X) = W(X) + λ · N(X).
-**W** ist die glatte lineare Länge Σ F · (√(dx² + γ²) + √(dy² + γ²)) über Paare und Pads, γ = EPS (die Kosten der Anordnung, an den Ecken abgerundet; die Umgewichtung F / max(|Δ|, ε) aus Stück 9 ist ihr Gradient).
+**W** ist die glatte lineare Länge Σ F · (√(dx² + γ²) + √(dy² + γ²)) über Paare und Pads, γ = EPS (die Kosten der Anordnung, an den Ecken abgerundet; die Umgewichtung F / max(|Δ|, ε) aus Stück 9 entspricht näherungsweise ihrem Gradienten).
 **N** kommt aus `dla_density.py` (elektrostatisch, lokale Überlaufstrafe oder keine). Ablauf: Startwert = Platzierung aus Stück 9 (zwei Umgewichtungen) plus eine kleine feste Streuung (SplitMix64, damit gestapelte Bauteile auseinanderlaufen können);
 λ beginnt so, dass die Beträge der beiden Gradienten gleich sind, und wächst je Stufe um GROWTH; je Stufe INNER Abstiegsschritte mit Armijo-Rückverfolgung; die Ladungsbreite sinkt von `width` linear auf 1 (Weichzeichnen, dann schärfen);
 die Orte bleiben im Gebiet (Block der Plätze plus Randzone). Gezählt werden die **Auswertungen** von f samt Gradient (jeder Versuch der Rückverfolgung zählt mit). Nach jeder Stufe wird mit der Zuordnung aus Stück 9 gerundet."""
